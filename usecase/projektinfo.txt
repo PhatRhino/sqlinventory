@@ -1,0 +1,24 @@
+Hi, ich möchte Projekt realisieren bei dem es darum geht, die Microsoft SQL Server Serverlandschaft zu inventarisieren.
+Hierbei soll jede Datenbankinstanz regelmäßig Informationen über sich selbst in einer lokalen Datenbank (AdminDB) sammeln. Hierfür habe ich bereits eine Datenbank, Tabellen und Abfragen erstellt, diese stellen den Startpunkt des Projektes dar.
+
+Verwendete Software:
+- Betriebssystem Windows Server 2016 oder höher
+- Wir beschränken uns auf Bordmittel des Microsoft SQL Server 2017 und höher sofern möglich sollen alle funktionen und prozesse innerhalb des SQL Servers abgebildet werden. 
+- Ein Zugriff auf den datunterliegenden Host ist nur in ausnahmefällen möglich
+- Alle zur datenerfassung notwendigen skripte sollen in tsql geschrieben sein.
+- Für das scheduling kann der SQL Server Agent genutzt werden
+- Daten werden erst lokal erfasst und im nachnang, gesendet oder eingesammelt um die zentrale bereitstellung zu realisieren
+
+Ziel des Projektes:
+1. Lokale Daten 
+1.1 DML/DDL Skripte für die Abfrage der Informationen und Speicherung in der Lokalen Datenbank prüfen und optimieren.
+1.2. Erstellung von StoredProcedures und Views für die Darstellung der Informationen
+1.3. Entwicklung eines Verfahrens um die daten automatisiert und regemäßig lokal zu aktualisieren.
+2. Zentrale Bereitstellung der Daten - Es soll ein Verfahren entwickelt werden, welches es ermöglicht die lokal erfassten informationen in eine Zentrale Datenbank zu überführen.
+2.1 Aufzeigen von möglichkeiten für den Datentransfer
+2.2 Design der Zentralen Datenbank
+
+
+Die Daten sollen Lokal erfasst werden, damit bei dem ermitteln der Informationen keine fehler entstehen, sofern kein Netzwerk zur Verfügung steht. Die Zusammenführung der Daten in einer Zentralen Datenbank soll für spätere Analysezwecke genuztz werden. Darüberhinaus werden die Daten an dieser Stelle weiter Spezifiziert und mit anderen Daten verknüpft.
+
+Ich schicke dir im Nachgang die DDL skripte für DB und Tabellen.
