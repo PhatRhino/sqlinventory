@@ -1,41 +1,48 @@
 DECLARE @MachineGuid NVARCHAR(50);
 DECLARE @DomainName SYSNAME;
-DECLARE @Platform NVARCHAR(50);
-DECLARE @Distribution NVARCHAR(50);
-DECLARE @Release NVARCHAR(50);
 
+-- Wechseln zum Kontext der master-Datenbank, um auf systemweite DMVs zugreifen zu können
+USE master;
+
+-- Lesen der MachineGuid aus der Registry
 EXEC master.sys.xp_instance_regread
     @rootkey = 'HKEY_LOCAL_MACHINE'
     , @key = 'SOFTWARE\\Microsoft\\Cryptography'
     , @value_name = 'MachineGuid'
     , @value = @MachineGuid OUTPUT;
 
+-- Lesen der Domain aus der Registry
 EXEC master.sys.xp_regread
     @rootkey = 'HKEY_LOCAL_MACHINE'
     , @key = 'SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters'
     , @value_name = 'Domain'
     , @value = @DomainName OUTPUT;
 
--- Retrieve platform, distribution, and release information using registry values
-EXEC master.dbo.xp_regread
-    @rootkey = 'HKEY_LOCAL_MACHINE'
-    , @key = 'SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion'
-    , @value_name = 'ProductName'
-    , @value = @Platform OUTPUT;
+-- Erfassen der Hostinformationen aus den System-DMVs
+DECLARE @Platform NVARCHAR(50);
+DECLARE @Distribution NVARCHAR(50);
+DECLARE @Release NVARCHAR(50);
+DECLARE @CPUCount INT;
+DECLARE @PhysicalMemoryKB BIGINT;
+DECLARE @IPAddress NVARCHAR(50);
 
-EXEC master.dbo.xp_regread
-    @rootkey = 'HKEY_LOCAL_MACHINE'
-    , @key = 'SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion'
-    , @value_name = 'BuildLabEx'
-    , @value = @Distribution OUTPUT;
+SELECT @Platform = host_platform
+    , @Distribution = host_distribution
+    , @Release = host_release
+FROM sys.dm_os_host_info;
 
-EXEC master.dbo.xp_regread
-    @rootkey = 'HKEY_LOCAL_MACHINE'
-    , @key = 'SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion'
-    , @value_name = 'CurrentBuild'
-    , @value = @Release OUTPUT;
+SELECT @CPUCount = cpu_count
+    , @PhysicalMemoryKB = physical_memory_kb
+FROM sys.dm_os_sys_info;
 
--- Select host information to be inserted or updated
+SELECT @IPAddress = local_net_address
+FROM sys.dm_exec_connections
+WHERE session_id = @@SPID;
+
+-- Wechseln zurück zum Kontext der AdminDB-Datenbank
+USE AdminDB;
+
+-- Einfügen oder Aktualisieren der Host-Informationen in der HostInfo-Tabelle
 MERGE INTO HostInfo AS target
 USING (
     SELECT 
@@ -47,9 +54,9 @@ USING (
         , @Platform AS Platform
         , @Distribution AS Distribution
         , @Release AS Release
-        , sys.dm_os_sys_info.cpu_count AS CPUCount
-        , sys.dm_os_sys_info.physical_memory_kb AS PhysicalMemoryKB
-        , (SELECT TOP 1 local_net_address FROM sys.dm_exec_connections WHERE session_id = @@SPID) AS IPAddress
+        , @CPUCount AS CPUCount
+        , @PhysicalMemoryKB AS PhysicalMemoryKB
+        , @IPAddress AS IPAddress
         , GETDATE() AS CaptureDate
 ) AS source
 ON target.HostGUID = source.HostGUID
