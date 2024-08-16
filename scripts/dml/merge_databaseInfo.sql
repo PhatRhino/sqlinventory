@@ -44,6 +44,7 @@ USING (
         , s.DataUsedSizeKB
         , (SELECT SUM(size * 8) FROM sys.master_files WHERE type = 1 AND database_id = d.database_id) AS LogSizeKB
         , s.LogUsedSizeKB
+        , (SELECT SUM(size * 8) FROM sys.master_files WHERE database_id = d.database_id) AS TotalSizeKB
         , GETDATE() AS CaptureDate
     FROM sys.databases d
     JOIN sys.database_recovery_status r ON d.database_id = r.database_id
@@ -61,6 +62,7 @@ WHEN MATCHED THEN
         , target.DataUsedSizeKB = source.DataUsedSizeKB
         , target.LogSizeKB = source.LogSizeKB
         , target.LogUsedSizeKB = source.LogUsedSizeKB
+        , target.TotalSizeKB = source.TotalSizeKB
         , target.CaptureDate = source.CaptureDate
 WHEN NOT MATCHED THEN
     INSERT (
@@ -75,10 +77,11 @@ WHEN NOT MATCHED THEN
         , DataUsedSizeKB
         , LogSizeKB
         , LogUsedSizeKB
+        , TotalSizeKB
         , CaptureDate
     )
     VALUES (
-          (SELECT TOP 1 InstanceID FROM InstanceInfo WHERE HostID = (SELECT HostID FROM HostInfo WHERE Hostname = @@SERVERNAME))
+          (SELECT TOP 1 InstanceID FROM InstanceInfo WHERE HostID = (SELECT HostID FROM HostInfo WHERE Hostname = LEFT(@@SERVERNAME, CHARINDEX('\', @@SERVERNAME + '\') - 1)))
         , source.DatabaseGUID
         , source.name
         , source.create_date
@@ -89,5 +92,6 @@ WHEN NOT MATCHED THEN
         , source.DataUsedSizeKB
         , source.LogSizeKB
         , source.LogUsedSizeKB
+        , source.TotalSizeKB
         , source.CaptureDate
     );
