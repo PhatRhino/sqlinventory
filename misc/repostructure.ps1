@@ -1,5 +1,5 @@
 # Setze das Wurzelverzeichnis für das Projekt
-$rootPath = "H:\UserData\Documents\00_SYNC\001_Business\repos_work\sqlinventory"
+$rootPath = "C:\Path\To\Repo"
 
 # Liste der Ordner, die erstellt werden sollen
 $folders = @(
@@ -15,7 +15,8 @@ $folders = @(
     "scripts\migrations",
     "config",
     "tests",
-    "backups"
+    "backups",
+    "misc"
 )
 
 # Erstellen der Ordnerstruktur und Hinzufügen der .gitkeep-Dateien
