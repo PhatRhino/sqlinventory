@@ -70,7 +70,7 @@ WHEN MATCHED THEN
         , target.Distribution = source.Distribution
         , target.Release = source.Release
         , target.CPUCount = source.CPUCount
-        , target.PhysicalMemory = source.PhysicalMemoryKB
+        , target.PhysicalMemoryKB = source.PhysicalMemoryKB
         , target.IPAddress = source.IPAddress
         , target.CaptureDate = source.CaptureDate
 WHEN NOT MATCHED THEN
@@ -84,7 +84,7 @@ WHEN NOT MATCHED THEN
         , Distribution
         , Release
         , CPUCount
-        , PhysicalMemory
+        , PhysicalMemoryKB
         , IPAddress
         , CaptureDate
     )
